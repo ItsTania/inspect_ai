@@ -237,6 +237,7 @@ def test_bash_session_missing_user(inspect_tool_support_sandbox):
 @pytest.mark.slow
 @skip_if_no_docker
 def test_text_editor_user(inspect_tool_support_sandbox):
+    print("STARTING THE TEST")
     task = Task(
         dataset=[
             Sample(
@@ -270,7 +271,12 @@ def test_text_editor_user(inspect_tool_support_sandbox):
             ModelOutput.from_content(model="mockllm/model", content="All done."),
         ],
     )
+
+    print("ABOUT TO CALL EVAL")
+
     log = eval(task, model=model)[0]
+
+    print("EVAL RETURNED")
 
     assert log.status == "success"
     assert log.samples

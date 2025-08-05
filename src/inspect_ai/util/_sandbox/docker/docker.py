@@ -83,13 +83,20 @@ class DockerSandboxEnvironment(SandboxEnvironment):
             # record auto compose
             project_record_auto_compose(project)
 
+            print(
+                f"in DockerSandboxEnvironment::task_init. about to call compose_build({project})"
+            )
             # build containers which are out of date
             await compose_build(project)
+            print("compose_build returned")
 
             # cleanup images created during build
             await compose_cleanup_images(project, timeout=60)
+            print("cleaned up images")
 
             services = await compose_services(project)
+            print("composed services")
+
             for name, service in services.items():
                 # if the service has an explicit container_name then
                 # error (as this won't work w/ epochs > 1)
