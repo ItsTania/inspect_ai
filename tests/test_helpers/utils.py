@@ -197,6 +197,9 @@ def skip_if_no_docker(func):
     except FileNotFoundError:
         is_docker_installed = False
 
+    # Add docker marker to the function
+    func = pytest.mark.docker(func)
+
     return pytest.mark.skipif(
         not is_docker_installed, reason="Test doesn't work without Docker installed."
     )(func)

@@ -5,6 +5,7 @@ from test_helpers.tool_call_utils import (
     get_tool_call,
     get_tool_response,
 )
+from test_helpers.utils import skip_if_no_docker
 
 from inspect_ai import Task, eval
 from inspect_ai.dataset import Sample
@@ -39,6 +40,7 @@ def inspect_tool_support_sandbox(local_inspect_tools) -> tuple[str, str]:
 
 
 @pytest.mark.slow
+@skip_if_no_docker
 def test_text_editor_read(inspect_tool_support_sandbox):
     task = Task(
         dataset=[Sample(input="Please read the file '/etc/passwd'")],
@@ -75,6 +77,7 @@ def test_text_editor_read(inspect_tool_support_sandbox):
 
 
 @pytest.mark.slow
+@skip_if_no_docker
 def test_text_editor_read_missing(inspect_tool_support_sandbox):
     task = Task(
         dataset=[Sample(input="Please read the file '/missing.txt'")],
@@ -112,6 +115,7 @@ def test_text_editor_read_missing(inspect_tool_support_sandbox):
 
 
 @pytest.mark.slow
+@skip_if_no_docker
 def test_bash_session_root(inspect_tool_support_sandbox):
     task = Task(
         dataset=[
@@ -153,6 +157,7 @@ def test_bash_session_root(inspect_tool_support_sandbox):
 
 
 @pytest.mark.slow
+@skip_if_no_docker
 def test_bash_session_non_root(inspect_tool_support_sandbox):
     task = Task(
         dataset=[
@@ -194,6 +199,7 @@ def test_bash_session_non_root(inspect_tool_support_sandbox):
 
 
 @pytest.mark.slow
+@skip_if_no_docker
 def test_bash_session_missing_user(inspect_tool_support_sandbox):
     task = Task(
         dataset=[
@@ -229,6 +235,7 @@ def test_bash_session_missing_user(inspect_tool_support_sandbox):
 
 
 @pytest.mark.slow
+@skip_if_no_docker
 def test_text_editor_user(inspect_tool_support_sandbox):
     task = Task(
         dataset=[

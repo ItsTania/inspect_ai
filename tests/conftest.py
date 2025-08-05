@@ -21,6 +21,12 @@ def pytest_addoption(parser):
         "--runapi", action="store_true", default=False, help="run API tests"
     )
     parser.addoption(
+        "--skipdocker",
+        action="store_true",
+        default=False,
+        help="skip Docker tests even when Docker is available",
+    )
+    parser.addoption(
         "--local-inspect-tools",
         action="store_true",
         default=False,
@@ -36,6 +42,7 @@ def local_inspect_tools(request):
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
     config.addinivalue_line("markers", "api: mark test as requiring API access")
+    config.addinivalue_line("markers", "docker: mark test as requiring Docker")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -50,6 +57,12 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "api" in item.keywords:
                 item.add_marker(skip_api)
+
+    if config.getoption("--skipdocker"):
+        skip_docker = pytest.mark.skip(reason="--skipdocker option provided")
+        for item in items:
+            if "docker" in item.keywords:
+                item.add_marker(skip_docker)
 
 
 @pytest.fixture(scope="module")
