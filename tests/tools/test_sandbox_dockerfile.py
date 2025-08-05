@@ -13,6 +13,8 @@ def test_sandbox_dockerfile():
         "docker", "tests/tools/docker-compose-context/Dockerfile"
     )
     log = eval(Task(sandbox=sandbox))[0]
+    if log.status != "success":
+        print(f"ERROR: {log.error}")
     assert log.status == "success"
     assert log.eval.sandbox == sandbox
 
