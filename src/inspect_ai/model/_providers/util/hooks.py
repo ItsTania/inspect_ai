@@ -112,9 +112,8 @@ class HttpxHooks(HttpHooks):
 
     async def request_hook(self, request: httpx.Request) -> None:
         # update the last request time for this request id (as there could be retries)
-        print(
-            f"XXXXX sending request with:\n{len(request.headers.get("authorization"))=}\n{request.headers}"
-        )
+        auth_len = len(request.headers.get("authorization"))
+        print(f"XXXXX sending request with:\n{auth_len}\n{request.headers}")
         request_id = request.headers.get(self.REQUEST_ID_HEADER, None)
         if request_id:
             self.update_request_time(request_id)
