@@ -82,6 +82,7 @@ class OpenAICompatibleAPI(ModelAPI):
         # use service prefix to lookup api_key
         if not self.api_key:
             self.api_key = os.environ.get(api_key_var, None)
+            print(f"XXXXX in OpenAICompatibleAPI __init__ {len(self.api_key)=}")
             if not self.api_key:
                 raise environment_prerequisite_error(
                     self.service,
