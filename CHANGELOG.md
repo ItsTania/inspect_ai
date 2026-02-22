@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Hooks: New `on_sample_init()` hook that fires before sandbox environments are created, enabling hooks to gate sandbox resource provisioning.
 - Model API: Add `content_list` property to `ChatMessage` for consistent access to content as a list.
 - OpenAI Compatible: Send `max_completion_tokens` when interacting with gpt-5 or o-series models.
 - Anthropic: Use `output_config` directly (rather than via `extra_body`) which is compatible with batch mode.
@@ -16,6 +17,7 @@
 - Bugfix: Create eval set bundle even when all logs are already complete.
 - Bugfix: Fix `epochs_changed` false positives in `eval_set` caused by comparing reducer closure `__name__` instead of registry log name.
 - Bugfix: Fix async ZIP parser crash on valid `.eval` files whose compressed data contained a false ZIP64 EOCD Locator signature.
+- Bugfix: Skip non-JSON lines in MCP server stdout parsing
 
 ## 0.3.180 (20 February 2026)
 
