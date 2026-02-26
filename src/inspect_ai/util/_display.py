@@ -8,7 +8,7 @@ from inspect_ai._util.thread import is_main_thread
 
 logger = getLogger(__name__)
 
-DisplayType = Literal["full", "conversation", "rich", "plain", "log", "none"]
+DisplayType = Literal["full", "full_log", "conversation", "rich", "plain", "log", "none"]
 """Console display type."""
 
 
@@ -23,18 +23,18 @@ def init_display_type(display: str | None = None) -> DisplayType:
 
     # if trio is configured as the backend then throttle down to "rich"
     # (as textual uses asyncio directly so is not compatible with trio)
-    if configured_async_backend() == "trio" and display == "full":
+    if configured_async_backend() == "trio" and display in ["full", "full_log"]:
         display = "rich"
 
     # if we are on a background thread then throttle down to "plain"
-    # ("full" requires textual which cannot run in a background thread
+    # ("full"/"full_log" require textual which cannot run in a background thread
     # b/c it calls the Python signal function; "rich" assumes exclusive
     # display access which may not be the case for threads)
-    if display in ["full", "rich"] and not is_main_thread():
+    if display in ["full", "full_log", "rich"] and not is_main_thread():
         display = "plain"
 
     match display:
-        case "full" | "conversation" | "rich" | "plain" | "log" | "none":
+        case "full" | "full_log" | "conversation" | "rich" | "plain" | "log" | "none":
             _display_type = display
         case _:
             logger.warning(
