@@ -5,6 +5,7 @@ import rich
 
 from inspect_ai.util._display import display_type
 
+from ..full_log.display import FullLogDisplay
 from ..log.display import LogDisplay
 from ..plain.display import PlainDisplay
 from ..rich.display import RichDisplay
@@ -24,6 +25,8 @@ def display() -> Display:
     if _active_display is None:
         if display_type() == "plain":
             _active_display = PlainDisplay()
+        elif display_type() == "full_log":
+            _active_display = FullLogDisplay() # The TTY check (and choice between text or rich) occurs within the FullLogDisplay module.
         elif (
             display_type() == "full"
             and sys.stdout.isatty()

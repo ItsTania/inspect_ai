@@ -60,7 +60,7 @@ def common_options(func: Callable[..., Any]) -> Callable[..., click.Context]:
     @click.option(
         "--display",
         type=click.Choice(
-            ["full", "conversation", "rich", "plain", "log", "none"],
+            ["full", "full_log", "conversation", "rich", "plain", "log", "none"],
             case_sensitive=False,
         ),
         default=DEFAULT_DISPLAY,
