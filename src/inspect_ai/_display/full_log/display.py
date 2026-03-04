@@ -56,6 +56,37 @@ def default_plain_log_path() -> str:
 # ---------------------------------------------------------------------------
 
 
+class _TeeIO:
+    """Write to both a primary stream and a secondary file simultaneously.
+
+    Used to mirror stderr to the plain-text log file so that external library
+    output (dataset loading, wandb: status lines, tqdm progress bars, etc.)
+    appears in the log alongside inspect's own formatted output.
+    """
+
+    def __init__(self, primary: IO[str], secondary: IO[str]) -> None:
+        self._primary = primary
+        self._secondary = secondary
+
+    def write(self, s: str) -> int:
+        try:
+            self._secondary.write(s)
+            self._secondary.flush()
+        except Exception:
+            pass
+        return self._primary.write(s)
+
+    def flush(self) -> None:
+        try:
+            self._secondary.flush()
+        except Exception:
+            pass
+        self._primary.flush()
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._primary, name)
+
+
 class _TeeProgress(Progress):
     def __init__(self, a: Progress, b: Progress) -> None:
         self._a = a
@@ -115,10 +146,17 @@ class FullLogDisplay(Display):
         self._sink = PlainDisplay(console=file_console)
 
         # Also capture Python logging output to the same file.
-        self._log_handler = logging.FileHandler(self.log_path, mode="a")
+        # Use StreamHandler with the same file handle (not FileHandler with a separate
+        # "a"-mode handle) to avoid write-position conflicts with the "w"-mode handle.
+        self._log_handler = logging.StreamHandler(self._log_file)
         self._log_handler.setLevel(logging.DEBUG)
         self._log_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
         logging.getLogger().addHandler(self._log_handler)
+
+        # Tee stderr to the log file so that direct stderr writes (dataset loading,
+        # wandb: status lines, tqdm progress bars) are captured alongside logging output.
+        self._orig_stderr = sys.stderr
+        sys.stderr = _TeeIO(sys.stderr, self._log_file)
 
     # ------------------------------------------------------------------
     # Display protocol — delegate terminal interactions to self._full
@@ -156,9 +194,9 @@ class FullLogDisplay(Display):
                 async with self._sink.task_screen(tasks, parallel):
                     yield screen
         finally:
-            self._log_file.flush()
+            sys.stderr = self._orig_stderr
             logging.getLogger().removeHandler(self._log_handler)
-            self._log_handler.close()
+            self._log_file.flush()
 
     # ------------------------------------------------------------------
     # task — tee task events to both the TUI and the file sink
