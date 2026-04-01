@@ -20,7 +20,7 @@ from .util import parse_cli_args
 class CommonOptions(TypedDict):
     log_level: str
     log_dir: str
-    display: Literal["full", "conversation", "rich", "plain", "none"]
+    display: Literal["full", "conversation", "rich", "plain", "log", "full_log", "none"]
     no_ansi: bool | None
     traceback_locals: bool
     env: tuple[str, ...] | None
@@ -60,7 +60,7 @@ def common_options(func: Callable[..., Any]) -> Callable[..., click.Context]:
     @click.option(
         "--display",
         type=click.Choice(
-            ["full", "conversation", "rich", "plain", "log", "none"],
+            ["full", "conversation", "rich", "plain", "log", "full_log", "none"],
             case_sensitive=False,
         ),
         default=DEFAULT_DISPLAY,
