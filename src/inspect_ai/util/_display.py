@@ -8,7 +8,9 @@ from inspect_ai._util.thread import is_main_thread
 
 logger = getLogger(__name__)
 
-DisplayType = Literal["full", "conversation", "rich", "plain", "log", "none"]
+DisplayType = Literal[
+    "full", "conversation", "rich", "plain", "log", "full_log", "none"
+]
 """Console display type."""
 
 
@@ -33,8 +35,10 @@ def init_display_type(display: str | None = None) -> DisplayType:
     if display in ["full", "rich"] and not is_main_thread():
         display = "plain"
 
+    # we handle the trio and background-thread guards for "full_log"'s primary display inside FullLogDisplay so do not have to add it to the logic above.
+
     match display:
-        case "full" | "conversation" | "rich" | "plain" | "log" | "none":
+        case "full" | "conversation" | "rich" | "plain" | "log" | "full_log" | "none":
             _display_type = display
         case _:
             logger.warning(
