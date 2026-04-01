@@ -124,7 +124,12 @@ class FullLogDisplay(Display):
         self._file_handler.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         )
-        logging.getLogger().addHandler(self._file_handler)
+        root_logger = logging.getLogger()
+        self._original_root_level = root_logger.level
+        root_logger.addHandler(self._file_handler)
+        # Set the root logger to INFO to capture the secondary log display.
+        if root_logger.level > logging.INFO:
+            root_logger.setLevel(logging.INFO)
 
         # Tee stderr to the log file
         self._log_file = self._file_handler.stream
@@ -134,7 +139,9 @@ class FullLogDisplay(Display):
     def _cleanup(self) -> None:
         """Remove the file handler and restore stderr."""
         sys.stderr = self._original_stderr
-        logging.getLogger().removeHandler(self._file_handler)
+        root_logger = logging.getLogger()
+        root_logger.removeHandler(self._file_handler)
+        root_logger.setLevel(self._original_root_level)
         self._file_handler.close()
 
     def print(self, message: str) -> None:
