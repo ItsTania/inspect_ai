@@ -3,6 +3,7 @@ from typing import AsyncIterator, Callable, Coroutine, Iterator
 
 import anyio
 import rich
+from rich.console import Console
 
 from inspect_ai._display.core.rich import rich_initialise
 from inspect_ai._util._async import configured_async_backend, run_coroutine
@@ -30,14 +31,18 @@ from ..core.results import task_metric, tasks_results
 
 
 class PlainDisplay(Display):
-    def __init__(self) -> None:
+    def __init__(self, console: Console | None = None) -> None:
         self.total_tasks: int = 0
         self.tasks: list[TaskWithResult] = []
         self.parallel = False
+        self._console = console
         rich_initialise()
 
     def print(self, message: str) -> None:
-        print(message)
+        if self._console:
+            self._console.print(message, highlight=False)
+        else:
+            print(message)
 
     @contextlib.contextmanager
     def progress(self, total: int) -> Iterator[Progress]:
@@ -65,7 +70,7 @@ class PlainDisplay(Display):
         try:
             # Print header for task(s)
             if parallel:
-                print(f"Running {self.total_tasks} tasks...")
+                self.print(f"Running {self.total_tasks} tasks...")
             yield TaskScreen()
         finally:
             # Print final results
@@ -83,7 +88,7 @@ class PlainDisplay(Display):
             footer=None,
             log_location=None,
         )
-        rich.print(panel)
+        (self._console or rich.get_console()).print(panel)
 
         # Create and yield task display
         task = TaskWithResult(profile, None)
@@ -92,6 +97,7 @@ class PlainDisplay(Display):
             task,
             show_task_names=self.multiple_task_names,
             show_model_names=self.multiple_model_names,
+            console=self._console,
         )
 
     def display_counter(self, caption: str, value: str) -> None:
@@ -101,7 +107,7 @@ class PlainDisplay(Display):
     def _print_results(self) -> None:
         """Print final results using rich panels"""
         panels = tasks_results(self.tasks)
-        rich.print(panels)
+        (self._console or rich.get_console()).print(panels)
 
 
 class PlainProgress(Progress):
@@ -119,11 +125,17 @@ class PlainProgress(Progress):
 
 class PlainTaskDisplay(TaskDisplay):
     def __init__(
-        self, task: TaskWithResult, *, show_task_names: bool, show_model_names: bool
+        self,
+        task: TaskWithResult,
+        *,
+        show_task_names: bool,
+        show_model_names: bool,
+        console: Console | None = None,
     ):
         self.task = task
         self.show_task_names = show_task_names
         self.show_model_names = show_model_names
+        self._console = console
         self.progress_display: PlainProgress | None = None
         self.samples_complete = 0
         self.samples_total = 0
@@ -195,7 +207,11 @@ class PlainTaskDisplay(TaskDisplay):
                 status_parts.append(refusals)
 
             # Print on new line
-            print(" | ".join(status_parts))
+            line = " | ".join(status_parts)
+            if self._console:
+                self._console.print(line, highlight=False)
+            else:
+                print(line)
 
             self.last_progress = self.progress_display.current
 
@@ -211,4 +227,7 @@ class PlainTaskDisplay(TaskDisplay):
     def complete(self, result: TaskResult) -> None:
         self.task.result = result
         self._print_status()
-        print("")
+        if self._console:
+            self._console.print("")
+        else:
+            print("")
