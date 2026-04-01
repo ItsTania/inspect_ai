@@ -27,11 +27,13 @@ from ..plain.display import PlainDisplay
 from ..textual.display import TextualDisplay
 
 
-def default_log_file_path() -> str:
+def default_log_file_path(subdirectory: str = "display_tee") -> str:
     """Generate a default log file path with timestamp."""
-    os.makedirs("logs", exist_ok=True)
+    base_log_dir = os.environ.get("INSPECT_LOG_DIR", "./logs")
+    log_dir = os.path.join(base_log_dir, subdirectory)
+    os.makedirs(log_dir, exist_ok=True)
     timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
-    return os.path.join("logs", f"inspect_display_{timestamp}.log")
+    return os.path.join(log_dir, f"inspect_display_{timestamp}.log")
 
 
 class _TeeIO(TextIOBase):
