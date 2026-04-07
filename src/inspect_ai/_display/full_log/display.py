@@ -138,10 +138,10 @@ class FullLogDisplay(Display):
         self._display_logger = logging.getLogger("inspect_ai.display.full_log")
         self._display_logger.setLevel(logging.DEBUG)
         self._display_logger.propagate = False
-        self._file_handler = logging.FileHandler(
-            self._log_file_path, encoding="utf-8"
-        )
-        self._file_handler.setLevel(logging.INFO)
+        self._file_handler = logging.FileHandler(self._log_file_path, encoding="utf-8")
+        self._file_handler.setLevel(
+            logging.INFO
+        )  # Info and above gets logged to the file. This matches the level of output calls in LogDisplay
         self._file_handler.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         )
@@ -149,7 +149,7 @@ class FullLogDisplay(Display):
 
         # Tee stderr to the log file for external library output
         self._original_stderr = sys.stderr
-        sys.stderr = _TeeIO(self._original_stderr, self._log_file)  # type: ignore[assignment]
+        sys.stderr = _TeeIO(self._original_stderr, self._log_file)
 
     def _cleanup(self) -> None:
         """Restore stderr, remove log handler, and close the log file."""

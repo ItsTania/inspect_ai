@@ -8,7 +8,9 @@ from inspect_ai._util.thread import is_main_thread
 
 logger = getLogger(__name__)
 
-DisplayType = Literal["full", "conversation", "rich", "plain", "log", "full_log", "none"]
+DisplayType = Literal[
+    "full", "conversation", "rich", "plain", "log", "full_log", "none"
+]
 """Console display type."""
 
 

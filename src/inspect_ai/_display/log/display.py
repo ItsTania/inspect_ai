@@ -31,7 +31,6 @@ from ..core.footer import task_http_retries_str, task_refusals_str
 from ..core.panel import task_title
 from ..core.results import task_metric
 
-
 DEFAULT_DISPLAY_LOGGER_NAME = "inspect_ai.display"
 
 
@@ -85,7 +84,9 @@ class LogDisplay(Display):
         """Log status updates for all tasks"""
         completed_tasks = sum(1 for task in self.tasks if task.result is not None)
         total_tasks = len(self.tasks)
-        self._logger.info(f"{completed_tasks}/{total_tasks} tasks complete", stacklevel=4)
+        self._logger.info(
+            f"{completed_tasks}/{total_tasks} tasks complete", stacklevel=4
+        )
 
     def _task_stats_str(self, stats: EvalStats) -> str:
         # eval time
