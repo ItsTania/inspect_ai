@@ -1,7 +1,41 @@
 ## Unreleased
 
+- Eval Logs: Add `header_only` parameter to `write_eval_log()` for writing only the header to `.eval` files without rewriting samples.
+- Eval Logs: Condense sample events when writing logs.
+- Eval Logs: Enable zstd compression by default for writing logs.
+- Bash tool: Change name of argument from `cmd` to `command`.
+- Sandboxes: Pass sample_id to sandbox providers via metadata.
+- Hooks: Add `on_before_model_generate()` hook.
+- Model API: Support extended json schema fields (validation and examples).
+- Computer Use: Map comma character to xdotool `comma` keysym so key combos like `CTRL+,` work correctly.
+- Schemas: Remove old json-schema-to-typescript codegen in favor of new pipeline.
+- Schemas: Fix OpenAPI schema genreation for samples/reductions (give them independent field serializers to preserve types).
+- Schemas: Fix OpenAPI schema generation for samples/reductions (give them independent field serializers to preserve types).
+- Bugfix: Fix `eval_results()` producing identical aggregate scores   
+  for multiple instances of the same scorer due to incorrect name
+  resolution using dimension names instead of scorer names.           
+- Bugfix: Fix `eval_results()` mutating the reducers parameter inside
+  a loop, causing inconsistent reducer assignment across scorer       
+  instances.
+- Bugfix: Fix `JSONRecorder` returning condensed `ModelEvent.input` (empty list) when `eval()` uses `log_format="json"`.
+
+## 0.3.205 (04 April 2026)
+
+- Eval Logs: Ensure that `condense_events()` is called when re-writing eval logs.
+- Eval Logs: Correct import ordering for patching use of zstd compressions.
+- Scorers: Return `NOANSWER` instead of `INCORRECT` when the `pattern` scorer fails to match.
+
+## 0.3.204 (02 April 2026)
+
+- Timelines: Improved detection of `forked_at` for branches from user or system messages.
+- Timelines: Provide option to include or exclude branches when computing span time and token usage.
+- Inspect View: Inline application assets.
+
+## 0.3.203 (01 April 2026)
+
 - OpenAI: Add `cyber_policy` to "content_filter" stop reason
-- Timelines: New `BranchEvent` to delineate timeline branches.
+- Timelines: `BranchEvent` and `timeline_branch()` to delineate timeline branches.
+- Timelines: Consolidate `TimelineBranch` into `TimelineSpan` via `forked_at` property.
 
 ## 0.3.202 (31 March 2026)
 
