@@ -1,3 +1,4 @@
+import os
 import sys
 from contextvars import ContextVar
 
@@ -5,6 +6,7 @@ import rich
 
 from inspect_ai.util._display import display_type
 
+from ..composite.display import CompositeDisplay
 from ..log.display import LogDisplay
 from ..plain.display import PlainDisplay
 from ..rich.display import RichDisplay
@@ -34,6 +36,23 @@ def display() -> Display:
             _active_display = LogDisplay()
         else:
             _active_display = RichDisplay()
+
+        # Use composite display option if INSPECT_DISPLAY_SECONDARY is not none.
+        secondary_type = os.environ.get("INSPECT_DISPLAY_SECONDARY")
+        if secondary_type is not None:
+            if secondary_type == "plain":
+                secondary: Display = PlainDisplay()
+            elif (
+                secondary_type == "full"
+                and sys.stdout.isatty()
+                and not rich.get_console().is_jupyter
+            ):
+                secondary = TextualDisplay()
+            elif secondary_type == "log":
+                secondary = LogDisplay()
+            else:
+                secondary = RichDisplay()
+            _active_display = CompositeDisplay(_active_display, secondary)
 
     return _active_display
 
