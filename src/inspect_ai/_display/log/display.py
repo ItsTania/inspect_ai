@@ -33,13 +33,14 @@ from ..core.results import task_metric
 
 
 class LogDisplay(Display):
-    def __init__(self) -> None:
+    def __init__(self, logger: logging.Logger | None = None) -> None:
+        self.logger = logger or logging.getLogger()
         self.total_tasks: int = 0
         self.tasks: list[TaskWithResult] = []
         self.parallel = False
 
     def print(self, message: str) -> None:
-        logging.info(message, stacklevel=2)
+        self.logger.info(message, stacklevel=2)
 
     @contextlib.contextmanager
     def progress(self, total: int) -> Iterator[Progress]:
@@ -62,7 +63,7 @@ class LogDisplay(Display):
         self.total_tasks = len(tasks)
         self.tasks = []
         self.parallel = parallel
-        logging.info(f"Running {self.total_tasks} tasks...", stacklevel=3)
+        self.logger.info(f"Running {self.total_tasks} tasks...", stacklevel=3)
         yield TaskScreen()
 
     @contextlib.contextmanager
@@ -75,13 +76,13 @@ class LogDisplay(Display):
         self._log_status()
 
     def display_counter(self, caption: str, value: str) -> None:
-        logging.info(f"{caption}: {value}", stacklevel=2)
+        self.logger.info(f"{caption}: {value}", stacklevel=2)
 
     def _log_status(self) -> None:
         """Log status updates for all tasks"""
         completed_tasks = sum(1 for task in self.tasks if task.result is not None)
         total_tasks = len(self.tasks)
-        logging.info(f"{completed_tasks}/{total_tasks} tasks complete", stacklevel=4)
+        self.logger.info(f"{completed_tasks}/{total_tasks} tasks complete", stacklevel=4)
 
     def _task_stats_str(self, stats: EvalStats) -> str:
         # eval time
@@ -118,12 +119,12 @@ class LogDisplay(Display):
         if isinstance(task.result, TaskCancelled):
             config = task_config_str(task.profile)
             stats = self._task_stats_str(task.result.stats)
-            logging.info(
+            self.logger.info(
                 f"{title} cancelled ({task.result.samples_completed}/{task.profile.samples} logged)\n{config}\n{stats}",
                 stacklevel=4,
             )
         elif isinstance(task.result, TaskError):
-            logging.error(
+            self.logger.error(
                 f"{title} failed ({task.result.samples_completed}/{task.profile.samples} logged)",
                 exc_info=(
                     task.result.exc_type,
@@ -135,7 +136,7 @@ class LogDisplay(Display):
         elif isinstance(task.result, TaskSuccess):
             config = task_config_str(task.profile)
             stats = self._task_stats_str(task.result.stats)
-            logging.info(f"{title} succeeded\n{config}\n{stats}", stacklevel=4)
+            self.logger.info(f"{title} succeeded\n{config}\n{stats}", stacklevel=4)
 
 
 class LogProgress(Progress):
