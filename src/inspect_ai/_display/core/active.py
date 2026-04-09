@@ -39,7 +39,7 @@ def display() -> Display:
 
         # Use composite display option if INSPECT_DISPLAY_SECONDARY is set.
         secondary_type = os.environ.get("INSPECT_DISPLAY_SECONDARY")
-        if secondary_type is not None:
+        if secondary_type is not None and secondary_type != "none":
             _active_display = CompositeDisplay(
                 _active_display, _create_display(secondary_type)
             )
