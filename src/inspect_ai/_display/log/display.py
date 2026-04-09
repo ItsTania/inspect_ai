@@ -1,5 +1,6 @@
 import contextlib
 import logging
+import os
 from typing import AsyncIterator, Callable, Coroutine, Iterator
 
 import anyio
@@ -34,7 +35,11 @@ from ..core.results import task_metric
 
 class LogDisplay(Display):
     def __init__(self, logger: logging.Logger | None = None) -> None:
-        self.logger = logger or logging.getLogger()
+        if logger is not None:
+            self.logger = logger
+        else:
+            logger_name = os.environ.get("INSPECT_LOG_DISPLAY_LOGGER")
+            self.logger = logging.getLogger(logger_name)
         self.total_tasks: int = 0
         self.tasks: list[TaskWithResult] = []
         self.parallel = False
