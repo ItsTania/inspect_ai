@@ -38,7 +38,7 @@ class LogDisplay(Display):
         if logger is not None:
             self.logger = logger
         else:
-            logger_name = os.environ.get("INSPECT_LOG_DISPLAY_LOGGER")
+            logger_name = os.environ.get("INSPECT_LOG_DISPLAY_PY_LOGGER")
             self.logger = logging.getLogger(logger_name)
         self.total_tasks: int = 0
         self.tasks: list[TaskWithResult] = []
