@@ -1,5 +1,5 @@
 import contextlib
-from typing import Any, AsyncIterator, Callable, Coroutine, Iterator
+from typing import AsyncIterator, Callable, Coroutine, Iterator
 
 from rich.console import Console
 
@@ -13,7 +13,6 @@ from ..core.display import (
     TaskResult,
     TaskScreen,
     TaskSpec,
-    TaskWithResult,
 )
 
 
