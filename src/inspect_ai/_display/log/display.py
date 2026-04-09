@@ -71,7 +71,7 @@ class LogDisplay(Display):
         # Create and yield task display
         task = TaskWithResult(profile, None)
         self.tasks.append(task)
-        yield LogTaskDisplay(task)
+        yield LogTaskDisplay(task, self.logger)
         self._log_result(task)
         self._log_status()
 
@@ -158,8 +158,9 @@ class LogProgress(Progress):
 
 
 class LogTaskDisplay(TaskDisplay):
-    def __init__(self, task: TaskWithResult):
+    def __init__(self, task: TaskWithResult, logger: logging.Logger) -> None:
         self.task = task
+        self.logger = logger
         self.progress_display: LogProgress | None = None
         self.samples_complete = 0
         self.samples_total = 0
@@ -217,7 +218,7 @@ class LogTaskDisplay(TaskDisplay):
             status_parts.append(refusals)
 
         # Print on new line
-        logging.info(", ".join(status_parts), stacklevel=stacklevel)
+        self.logger.info(", ".join(status_parts), stacklevel=stacklevel)
 
     def sample_complete(self, complete: int, total: int) -> None:
         self.samples_complete = complete
