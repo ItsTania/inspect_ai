@@ -5,6 +5,7 @@ import rich
 
 from inspect_ai.util._display import display_type
 
+from ..full_log.display import FullLogDisplay
 from ..log.display import LogDisplay
 from ..plain.display import PlainDisplay
 from ..rich.display import RichDisplay
@@ -30,6 +31,8 @@ def display() -> Display:
             and not rich.get_console().is_jupyter
         ):
             _active_display = TextualDisplay()
+        elif display_type() == "full_log":
+            _active_display = FullLogDisplay()
         elif display_type() == "log":
             _active_display = LogDisplay()
         else:
