@@ -21,38 +21,28 @@ def active_display() -> Display | None:
     return _active_display
 
 
+def _create_display(dt: str) -> Display:
+    if dt == "plain":
+        return PlainDisplay()
+    elif dt == "full" and sys.stdout.isatty() and not rich.get_console().is_jupyter:
+        return TextualDisplay()
+    elif dt == "log":
+        return LogDisplay()
+    else:
+        return RichDisplay()
+
+
 def display() -> Display:
     global _active_display
     if _active_display is None:
-        if display_type() == "plain":
-            _active_display = PlainDisplay()
-        elif (
-            display_type() == "full"
-            and sys.stdout.isatty()
-            and not rich.get_console().is_jupyter
-        ):
-            _active_display = TextualDisplay()
-        elif display_type() == "log":
-            _active_display = LogDisplay()
-        else:
-            _active_display = RichDisplay()
+        _active_display = _create_display(display_type())
 
-        # Use composite display option if INSPECT_DISPLAY_SECONDARY is not none.
+        # Use composite display option if INSPECT_DISPLAY_SECONDARY is set.
         secondary_type = os.environ.get("INSPECT_DISPLAY_SECONDARY")
         if secondary_type is not None:
-            if secondary_type == "plain":
-                secondary: Display = PlainDisplay()
-            elif (
-                secondary_type == "full"
-                and sys.stdout.isatty()
-                and not rich.get_console().is_jupyter
-            ):
-                secondary = TextualDisplay()
-            elif secondary_type == "log":
-                secondary = LogDisplay()
-            else:
-                secondary = RichDisplay()
-            _active_display = CompositeDisplay(_active_display, secondary)
+            _active_display = CompositeDisplay(
+                _active_display, _create_display(secondary_type)
+            )
 
     return _active_display
 
