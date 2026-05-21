@@ -21,6 +21,7 @@ class CommonOptions(TypedDict):
     log_level: str
     log_dir: str
     display: Literal["full", "conversation", "rich", "plain", "none"]
+    display_secondary: str | None
     log_display_py_logger: str | None
     no_ansi: bool | None
     traceback_locals: bool
@@ -67,6 +68,15 @@ def common_options(func: Callable[..., Any]) -> Callable[..., click.Context]:
         default=DEFAULT_DISPLAY,
         envvar="INSPECT_DISPLAY",
         help="Set the display type (defaults to 'full')",
+    )
+    # Currently only "log" is supported as a secondary display as other display types (full, rich, conversation, plain) write to the terminal and would conflict with the primary display.
+    # To add support of other secondary display types we would need to further understand usecase.
+    @click.option(
+        "--display-secondary",
+        type=click.Choice(["log"], case_sensitive=False),
+        default=None,
+        envvar="INSPECT_DISPLAY_SECONDARY",
+        help="Secondary display to run alongside the primary display. Only 'log' is supported.",
     )
     @click.option(
         "--log-display-py-logger",
@@ -130,8 +140,14 @@ def process_common_options(options: CommonOptions) -> None:
         os.environ["INSPECT_TRACEBACK_LOCALS"] = "1"
 
     # set log display py logger name
-    if options.get("log_display_py_logger"):
-        os.environ["INSPECT_LOG_DISPLAY_PY_LOGGER"] = options["log_display_py_logger"]
+    log_display_py_logger = options.get("log_display_py_logger")
+    if log_display_py_logger:
+        os.environ["INSPECT_LOG_DISPLAY_PY_LOGGER"] = log_display_py_logger
+
+    # set secondary display type
+    display_secondary = options.get("display_secondary")
+    if display_secondary:
+        os.environ["INSPECT_DISPLAY_SECONDARY"] = display_secondary
 
     # propagate display
     if options["no_ansi"]:
