@@ -21,6 +21,7 @@ class CommonOptions(TypedDict):
     log_level: str
     log_dir: str
     display: Literal["full", "conversation", "rich", "plain", "none"]
+    log_display_py_logger: str | None
     no_ansi: bool | None
     traceback_locals: bool
     env: tuple[str, ...] | None
@@ -66,6 +67,13 @@ def common_options(func: Callable[..., Any]) -> Callable[..., click.Context]:
         default=DEFAULT_DISPLAY,
         envvar="INSPECT_DISPLAY",
         help="Set the display type (defaults to 'full')",
+    )
+    @click.option(
+        "--log-display-py-logger",
+        type=str,
+        default=None,
+        envvar="INSPECT_LOG_DISPLAY_PY_LOGGER",
+        help="Name of the Python logger used by the log display (defaults to root logger).",
     )
     @click.option(
         "--no-ansi",
@@ -120,6 +128,10 @@ def process_common_options(options: CommonOptions) -> None:
     # set traceback locals env var
     if options.get("traceback_locals", False):
         os.environ["INSPECT_TRACEBACK_LOCALS"] = "1"
+
+    # set log display py logger name
+    if options.get("log_display_py_logger"):
+        os.environ["INSPECT_LOG_DISPLAY_PY_LOGGER"] = options["log_display_py_logger"]
 
     # propagate display
     if options["no_ansi"]:
