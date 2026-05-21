@@ -195,6 +195,7 @@ For a complete matrix of which task, solver, and runtime settings can be configu
 |  |  |
 |--------------------------|----------------------------------------------|
 | `--display` / `INSPECT_DISPLAY` | Display type. Values: `full`, `conversation`, `rich`, `plain`, `log`, `none` (defaults to `full`). |
+| `--log-display-py-logger` / `INSPECT_LOG_DISPLAY_PY_LOGGER` | Name of the Python logger used by the `log` display. Defaults to the root logger. Set this to direct log display output to a named logger (e.g. for use with custom handlers). |
 | `--no-ansi` / `INSPECT_NO_ANSI` | Do not print ANSI control characters. |
 | `--approval` | Config file for tool call approval. |
 | `--env` | Set an environment variable (multiple instances of `--env` are permitted). |
